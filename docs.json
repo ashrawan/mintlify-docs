@@ -66,6 +66,11 @@
     "global": {
       "anchors": [
         {
+          "anchor": "NeuroQai",
+          "icon": "shield",
+          "href": "https://neuroqai.com"
+        },
+        {
           "anchor": "Resources",
           "icon": "github",
           "href": "https://github.com/ashrawan/security-engineering"
