@@ -1,32 +1,77 @@
-# Mintlify Starter Kit
+# Security Engineering - A Practical Approach
 
-Click on `Use this template` to copy the Mintlify starter kit. The starter kit contains examples including
+## 🚀 Getting Started
 
-- Guide pages
-- Navigation
-- Customizations
-- API Reference pages
-- Use of popular components
+### Prerequisites
+- Node.js (v14 or higher)
+- npm or yarn
 
-### Development
+### Local Development
 
-Install the [Mintlify CLI](https://www.npmjs.com/package/mintlify) to preview the documentation changes locally. To install, use the following command
+1. **Clone the repository**
+   ```bash
+   git clone <repository-url>
+   cd mintlify-docs
+   ```
 
+2. **Install Mintlify CLI**
+   ```bash
+   npm install -g mintlify
+   ```
+
+3. **Start the development server**
+   ```bash
+   mintlify dev
+   ```
+
+4. **View the docs**
+   Open `http://localhost:3000` in your browser
+
+
+## 🛠️ Adding New Content
+
+To add new sections to the book:
+
+1. **Create MDX files** in the appropriate chapter directory
+2. **Update `docs.json`** navigation to include new pages
+3. **Follow naming convention**: `section_X_Y_descriptive_name.mdx`
+
+### MDX File Template
+```mdx
+---
+title: "Your Section Title"
+description: "Brief description of the section content"
+---
+
+# Your Section Title
+
+Your content here...
 ```
-npm i -g mintlify
-```
 
-Run the following command at the root of your documentation (where docs.json is)
+## 🎨 Configuration
 
-```
-mintlify dev
-```
+Key files for customization:
 
-### Publishing Changes
+- `docs.json` - Navigation and site configuration
+- `index.mdx` - Homepage content
+- `logo/` - Brand assets
+- `images/` - Book images and diagrams
 
-Install our Github App to auto propagate changes from your repo to your deployment. Changes will be deployed to production automatically after pushing to the default branch. Find the link to install on your dashboard. 
+## 📝 Contributing
 
-#### Troubleshooting
+1. Fork the repository
+2. Create a feature branch for new content
+3. Add sections following the established structure
+4. Update navigation in `docs.json`
+5. Test locally with `mintlify dev`
+6. Submit a pull request
 
-- Mintlify dev isn't running - Run `mintlify install` it'll re-install dependencies.
-- Page loads as a 404 - Make sure you are running in a folder with `docs.json`
+## 🔗 Resources
+
+- [Mintlify Documentation](https://mintlify.com/docs)
+- [MDX Documentation](https://mdxjs.com/)
+- [Security Engineering Resources](https://www.cl.cam.ac.uk/~rja14/book.html)
+
+## 📄 License
+
+This book is provided for educational and reference purposes.

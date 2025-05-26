@@ -1,56 +1,64 @@
 {
-  "$schema": "https://mintlify.com/docs.json",
-  "theme": "mint",
-  "name": "Mint Starter Kit",
+  "$schema": "https://mintlify.com/schema.json",
+  "theme": "palm",
+  "name": "Security Engineering - by NeuroQ",
+  "description": "Advanced research in cybersecurity engineering, quantum-resistant cryptography, and digital identity verification systems",
   "colors": {
-    "primary": "#16A34A",
-    "light": "#07C983",
-    "dark": "#15803D"
+    "primary": "#3B82F6",
+    "light": "#60A5FA",
+    "dark": "#1D4ED8"
+  },
+  "logo": {
+    "light": "/logo/light.svg",
+    "dark": "/logo/dark.svg"
   },
   "favicon": "/favicon.svg",
   "navigation": {
     "tabs": [
       {
-        "tab": "Guides",
+        "tab": "Publications",
         "groups": [
           {
-            "group": "Get Started",
+            "group": "Publications",
             "pages": [
-              "index",
-              "quickstart",
-              "development"
+              "publications/2025-report-of-digital-security-by-neuroq",
+              "publications/neuroq-security-engineering-and-future"
             ]
           },
           {
-            "group": "Essentials",
+            "group": "Engineering",
             "pages": [
-              "essentials/markdown",
-              "essentials/code",
-              "essentials/images",
-              "essentials/settings",
-              "essentials/navigation",
-              "essentials/reusable-snippets"
+              "publications/digital-identity-verification-standards-and-proposals"
             ]
           }
         ]
       },
       {
-        "tab": "API Reference",
+        "tab": "Security Engineering",
         "groups": [
           {
-            "group": "API Documentation",
+            "group": "Fundamentals of Security Engineering",
             "pages": [
-              "api-reference/introduction"
+              "Security Engineering - by NeuroQ/01 Foundation of Security Engineering/Introduction to Security Engineering",
+              "Security Engineering - by NeuroQ/01 Foundation of Security Engineering/Security Principles and compliance"
             ]
           },
           {
-            "group": "Endpoint Examples",
+            "group": "Foundation and Specifications",
             "pages": [
-              "api-reference/endpoint/get",
-              "api-reference/endpoint/create",
-              "api-reference/endpoint/delete",
-              "api-reference/endpoint/webhook"
+              "Security Engineering - by NeuroQ/02 Specifications, Standards and Foundation/Network Security and Fundamentals",
+              "Security Engineering - by NeuroQ/02 Specifications, Standards and Foundation/Cryptography - Standards and Implementations"
             ]
+          },
+          {
+            "group": "Architecture and Implementations",
+            "pages": [
+              "Security Engineering - by NeuroQ/03 Secure Systems/Secure Systems and Implementations"
+            ]
+          },
+          {
+            "group": "Cloud Security",
+            "pages": []
           }
         ]
       }
@@ -58,45 +66,32 @@
     "global": {
       "anchors": [
         {
-          "anchor": "Documentation",
-          "href": "https://mintlify.com/docs",
-          "icon": "book-open-cover"
-        },
-        {
-          "anchor": "Community",
-          "href": "https://mintlify.com/community",
-          "icon": "slack"
-        },
-        {
-          "anchor": "Blog",
-          "href": "https://mintlify.com/blog",
-          "icon": "newspaper"
+          "anchor": "Resources",
+          "icon": "github",
+          "href": "https://github.com/ashrawan/security-engineering"
         }
       ]
     }
   },
-  "logo": {
-    "light": "/logo/light.svg",
-    "dark": "/logo/dark.svg"
-  },
-  "navbar": {
-    "links": [
-      {
-        "label": "Support",
-        "href": "mailto:hi@mintlify.com"
-      }
-    ],
-    "primary": {
-      "type": "button",
-      "label": "Dashboard",
-      "href": "https://dashboard.mintlify.com"
-    }
-  },
   "footer": {
     "socials": {
-      "x": "https://x.com/mintlify",
-      "github": "https://github.com/mintlify",
-      "linkedin": "https://linkedin.com/company/mintlify"
+      "x": "https://x.com/qsecurityeng",
+      "github": "https://github.com/q-security-engineering",
+      "linkedin": "https://linkedin.com/company/q-security-engineering"
     }
+  },
+  "seo": {
+    "indexing": "all"
+  },
+  "contextual": {
+    "options": [
+      "copy",
+      "view",
+      "chatgpt",
+      "claude"
+    ]
+  },
+  "export": {
+    "pdf": true
   }
 }
