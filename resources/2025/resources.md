@@ -1,0 +1,10 @@
+https://owasp.org
+https://csrc.nist.gov
+https://www.iso.org/standard/27001
+https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-63-3.pdf
+https://attack.mitre.org
+https://fidoalliance.org
+https://openid.net/connect
+https://www.cl.cam.ac.uk/~rja14/book.html
+https://datatracker.ietf.org
+https://www.cisecurity.org/cis-benchmarks

@@ -21,14 +21,14 @@
           {
             "group": "Publications",
             "pages": [
-              "publications/2025-report-of-digital-security-by-neuroq",
-              "publications/neuroq-security-engineering-and-future"
+              "publications/2025_Report_of_Digital_Security_by_NeuroQ"
             ]
           },
           {
             "group": "Engineering",
             "pages": [
-              "publications/digital-identity-verification-standards-and-proposals"
+              "publications/NeuroQ_Security_Engineering_and_Future",
+              "publications/Digital_Identity_Verification_Standards_and_Proposals"
             ]
           }
         ]

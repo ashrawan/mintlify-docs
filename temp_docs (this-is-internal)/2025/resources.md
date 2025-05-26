@@ -1,3 +1,0 @@
-
-
-https://owasp.org

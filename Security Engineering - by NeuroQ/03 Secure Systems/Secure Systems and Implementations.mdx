@@ -120,36 +120,6 @@ Authentication relies on factors: Something You Know (passwords), Something You 
         * **Client Credentials Grant ([RFC 6749, Section 4.4](https://tools.ietf.org/html/rfc6749#section-4.4))**: Used by confidential clients to obtain an access token on their own behalf, without a user's involvement. The access token obtained via this grant **MUST NOT** be used to access user-specific data; it is for accessing resources owned by the client itself or for machine-to-machine communication.
     * **Security**: TLS is mandatory for all communication. Exact redirect URIs must be registered to prevent open redirect vulnerabilities. The state parameter must be used to prevent [CSRF](https://owasp.org/www-community/attacks/csrf) attacks. Access token validation at the resource server is critical ([OAuth 2.0 Security Best Current Practice](https://datatracker.ietf.org/doc/html/draft-ietf-oauth-security-topics)).
 
-```mermaid
-graph TD
-    subgraph "OAuth 2.0 Grant Types"
-        A[Authorization Code Grant] --> A1[User-Agent Redirect]
-        A1 --> A2[Authorization Code]
-        A2 --> A3[Token Exchange with PKCE]
-        A3 --> A4[Access Token + Refresh Token]
-
-        B[Refresh Token Grant] --> B1[Refresh Token]
-        B1 --> B2[New Access Token]
-
-        C[Implicit Grant - DEPRECATED] --> C1[Direct Access Token in URL]
-
-        D[Client Credentials Grant] --> D1[Client Authenticates]
-        D1 --> D2[Access Token for Client Resources]
-    end
-
-    subgraph "OAuth 2.0 Authorization Code Flow"
-        User[User] -->|1. Request protected data| Client[Client Application]
-        Client -->|2. Redirect with Auth Code Request + PKCE challenge| AuthZ[Authorization Server]
-        AuthZ -->|3. Prompts for login/consent| User
-        User -->|4. Authenticates & grants consent| AuthZ
-        AuthZ -->|5. Redirect with Authorization Code| Client
-        Client -->|6. Exchanges Code & PKCE verifier for Tokens| AuthZ
-        AuthZ -->|7. Issues Access Token & ID Token| Client
-        Client -->|8. Presents Access Token for API access| Resource[Resource Server]
-        Resource -->|9. Returns protected resource| Client
-    end
-```
-
 
 * **OpenID Connect (OIDC) ([OpenID Connect Core 1.0](https://openid.net/specs/openid-connect-core-1_0.html))**: Identity layer on OAuth 2.0 for user authentication.
     * **Use Case**: Client application needs to verify the user's identity (e.g., "Login with Google" on a website).
