@@ -7,7 +7,7 @@ Cryptography provides the mathematical framework for securing information, ensur
 
 * **Confidentiality**: Protects against unauthorized disclosure (e.g., **83% of data breaches** involve external actors targeting confidential data [Verizon 2023 Data Breach Investigations Report](https://www.verizon.com/business/resources/reports/dbir/)).
 * **Integrity**: Guarantees data has not been altered (e.g., [NIST Cybersecurity Framework](https://www.nist.gov/cyberframework)).
-* **Authentication**: Verifies identity (e.g., organizations with strong authentication experience **76% lower** breach costs [IBM Security 2023](https://www.ibm.com/security/data-breach)).
+* **Authentication**: Verifies identity (e.g., organizations with strong authentication experience **76% lower** breach costs [IBM Security 2024](https://www.ibm.com/reports/data-breach)).
 * **Non-repudiation**: Prevents denial of actions.
 
 **Kerckhoffs's Principle** states that a cryptographic system's security should depend solely on the secrecy of the **key**, not the algorithm. Cryptographic strength is quantified as **"bits of security"** [NIST SP 800-57 Part 1 Rev. 5](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf).
@@ -19,13 +19,60 @@ Cryptography provides the mathematical framework for securing information, ensur
 ### Algorithms and Modes
 
 * **Advanced Encryption Standard (AES)**: The most widely used symmetric algorithm, standardized by NIST in [FIPS 197](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197-upd1.pdf). AES is a **block cipher** (128-bit blocks) with 128, 192, or 256-bit keys. AES-256 is approved by the [NSA](https://www.nsa.gov/Cybersecurity/Commercial-Solutions-for-Classified/) for TOP SECRET information, achieving throughput rates exceeding 10 GB/s on hardware-accelerated processors.
+
+**Implementation Example:**
+```bash
+# OpenSSL AES-256-GCM encryption
+openssl enc -aes-256-gcm -in plaintext.txt -out encrypted.bin -K $KEY -iv $IV
+
+# TLS 1.3 cipher suite configuration in nginx
+ssl_ciphers 'TLS_AES_256_GCM_SHA384:TLS_CHACHA20_POLY1305_SHA256:TLS_AES_128_GCM_SHA256';
+ssl_prefer_server_ciphers off;
+```
+
     * **Block Cipher Design**: Employs **Substitution-Permutation Networks (SPNs)**, ensuring **confusion** (non-linear S-boxes) and **diffusion** (linear mixing operations like ShiftRows, MixColumns) [NIST FIPS 197](https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.197-upd1.pdf).
     * **Security**: Modern ciphers use 128-bit blocks or larger to mitigate **birthday attack** vulnerabilities (e.g., 64-bit ciphers are vulnerable after 232 blocks).
+
 * **Stream Ciphers**: Generate pseudorandom **keystreams** combined with plaintext via XOR, offering efficiency for real-time applications without padding overhead (e.g., **ChaCha20** [RFC 8439](https://datatracker.ietf.org/doc/html/rfc8439)).
+
+**ChaCha20-Poly1305 Configuration:**
+```yaml
+# Wireguard VPN configuration using ChaCha20-Poly1305
+[Interface]
+PrivateKey = <private-key>
+Address = 10.0.0.1/24
+ListenPort = 51820
+
+[Peer]
+PublicKey = <peer-public-key>
+AllowedIPs = 10.0.0.0/24
+Endpoint = peer.example.com:51820
+```
+
     * **ARX Design**: **Addition-Rotation-XOR (ARX)** constructions (e.g., ChaCha20) use basic CPU operations, enabling constant-time implementations that resist side-channel attacks. ChaCha20 achieves 1.5-2x superior performance compared to AES-128 on ARM processors [Google BoringSSL benchmarks](https://boringssl.googlesource.com/boringssl/).
     * **Critical Security**: **Nonce uniqueness** is paramount for stream ciphers; reuse enables **keystream recovery** via **two-time pad attacks**.
 
 ### Block Cipher Modes of Operation
+
+**Real-World Implementation Considerations:**
+
+```python
+# Secure AES-GCM implementation in Python
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+import os
+
+def secure_encrypt(data, key):
+    aesgcm = AESGCM(key)
+    nonce = os.urandom(12)  # 96-bit nonce for GCM
+    ciphertext = aesgcm.encrypt(nonce, data, None)
+    return nonce + ciphertext  # Prepend nonce for later decryption
+
+def secure_decrypt(encrypted_data, key):
+    aesgcm = AESGCM(key)
+    nonce = encrypted_data[:12]
+    ciphertext = encrypted_data[12:]
+    return aesgcm.decrypt(nonce, ciphertext, None)
+```
 
 * **Electronic Codebook (ECB)**: Encrypts each block independently. **Suffers from pattern preservation**, unsuitable for structured data.
 * **Cipher Block Chaining (CBC)**: Links ciphertext blocks through XOR. Requires unpredictable **Initialization Vectors (IVs)** [NIST SP 800-38A](https://nvlpubs.nist.gov/nistpubs/Legacy/SP/nistspecialpublication800-38a.pdf) but is vulnerable to **padding oracle attacks**.
@@ -35,14 +82,50 @@ Cryptography provides the mathematical framework for securing information, ensur
 
 **AEAD schemes** provide both confidentiality and integrity for plaintext, and integrity for unencrypted **associated data (AD)**.
 
+**Network Protocol Implementation:**
+```c
+// TLS 1.3 AEAD record protection pseudocode
+struct TLSCiphertext {
+    ContentType opaque_type = application_data;
+    ProtocolVersion legacy_record_version = 0x0303;
+    uint16 length;
+    opaque encrypted_record[length];
+};
+
+// AEAD encryption: AES-256-GCM or ChaCha20-Poly1305
+encrypted_record = AEAD-Encrypt(write_key, nonce, plaintext, additional_data)
+```
+
 * **Galois/Counter Mode (GCM)**: Combines CTR mode encryption with GHASH authentication using polynomial arithmetic in GF(2128) [NIST SP 800-38D](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-38D.pdf). Recommended 96-bit IVs and 128-bit **authentication tags**. **Nonce reuse** is a critical vulnerability, enabling authentication key recovery and forgery attacks (e.g., **Forbidden Attack** [Joux, 2016](https://eprint.iacr.org/2016/475.pdf)).
+
 * **ChaCha20-Poly1305**: Software-optimized AEAD [RFC 8439](https://datatracker.ietf.org/doc/html/rfc8439), combining ChaCha20 with the Poly1305 authenticator. Offers constant-time implementation, superior performance on ARM processors, and enhanced **nonce-misuse resistance**. Mandatory cipher suite in [TLS 1.3](https://datatracker.ietf.org/doc/html/rfc8446).
+
+**IPsec ESP Configuration Example:**
+```bash
+# StrongSwan IPsec configuration with ChaCha20-Poly1305
+conn tunnel
+    left=192.168.1.1
+    right=192.168.2.1
+    ike=aes256-sha256-modp2048!
+    esp=chacha20poly1305-sha256!
+    keyexchange=ikev2
+    auto=start
+```
 
 ## Asymmetric Cryptography
 
 **Asymmetric cryptography** (public-key cryptography) uses mathematically related **public/private key pairs**, solving the key distribution problem inherent in symmetric systems [Diffie & Hellman, 1976]. It is generally slower than symmetric encryption.
 
 ### RSA Cryptosystem
+
+**SSH Key Generation Example:**
+```bash
+# Generate RSA-4096 key pair for SSH
+ssh-keygen -t rsa -b 4096 -C "user@example.com" -f ~/.ssh/id_rsa_4096
+
+# Modern Ed25519 alternative (recommended)
+ssh-keygen -t ed25519 -C "user@example.com" -f ~/.ssh/id_ed25519
+```
 
 * **Mathematical Foundation**: Security based on the computational difficulty of factoring large composite integers [Rivest, Shamir, & Adleman, 1978].
 * **Key Generation**: Involves selecting two large primes p,q, computing modulus n=pq, Euler's totient ϕ(n)=(p−1)(q−1), public exponent e, and private exponent d≡e−1(modϕ(n)).
@@ -53,16 +136,64 @@ Cryptography provides the mathematical framework for securing information, ensur
 
 ### Elliptic Curve Cryptography (ECC)
 
+**Practical ECC Implementation:**
+```bash
+# Generate ECDSA P-256 certificate for TLS
+openssl ecparam -genkey -name prime256v1 -noout -out server.key
+openssl req -new -x509 -key server.key -out server.crt -days 365
+
+# Ed25519 certificate generation (modern alternative)
+openssl genpkey -algorithm Ed25519 -out ed25519.key
+openssl req -new -x509 -key ed25519.key -out ed25519.crt -days 365
+```
+
 * **Mathematical Foundation**: Provides equivalent security to RSA with significantly smaller key sizes, based on the difficulty of the **Elliptic Curve Discrete Logarithm Problem (ECDLP)** [Koblitz, 1987].
 * **Curve Definition**: Defined by the **Weierstrass equation** y2=x3+ax+b(modp) over finite fields [NIST SP 800-186](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186.pdf).
 * **Security Advantages**: 256-bit ECC offers approximately equivalent security to 3072-bit RSA [NIST SP 800-57 Part 1 Rev. 5](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-57pt1r5.pdf).
 * **Standardized Curves**: NIST curves (e.g., **P-256**, **P-384**, **P-521**) [NIST SP 800-186](https://nvlpubs.nist.gov/nistpubs/SpecialPublications/NIST.SP.800-186.pdf). Alternative families include **Brainpool curves** [RFC 5639](https://datatracker.ietf.org/doc/html/rfc5639) and **Curve25519** (X25519 for key exchange [RFC 7748](https://datatracker.ietf.org/doc/html/rfc7748), Ed25519 for signatures [RFC 8032](https://datatracker.ietf.org/doc/html/rfc8032)).
+
+**TLS 1.3 Key Exchange Configuration:**
+```javascript
+// Node.js TLS server with modern ECC configuration
+const tls = require('tls');
+const fs = require('fs');
+
+const options = {
+    key: fs.readFileSync('server.key'),
+    cert: fs.readFileSync('server.crt'),
+    secureProtocol: 'TLSv1_3_method',
+    ciphers: [
+        'TLS_AES_256_GCM_SHA384',
+        'TLS_CHACHA20_POLY1305_SHA256',
+        'TLS_AES_128_GCM_SHA256'
+    ].join(':'),
+    ecdhCurve: 'prime256v1:X25519:secp384r1'
+};
+
+const server = tls.createServer(options, (socket) => {
+    console.log('Secure connection established');
+    console.log('Protocol:', socket.getProtocol());
+    console.log('Cipher:', socket.getCipher());
+});
+```
+
 * **Protocols**:
     * **Elliptic Curve Diffie-Hellman (ECDH)**: Enables key agreement, providing **perfect forward secrecy (PFS)** when ephemeral keys are used.
     * **Elliptic Curve Digital Signature Algorithm (ECDSA)**: Provides digital signature capabilities [NIST FIPS 186-4](https://nvlpubs.nist.gov/nistpubs/fips/nist.fips.186-4.pdf). **Critical security requirement**: high-quality random number generation for ephemeral keys; nonce reuse enables private key recovery. The **deterministic variant** [RFC 6979](https://datatracker.ietf.org/doc/html/rfc6979) mitigates this risk.
     * **Edwards-Curve Digital Signature Algorithm (EdDSA)**: Modern signature algorithm (e.g., **Ed25519**) designed for security and implementation simplicity [RFC 8032](https://datatracker.ietf.org/doc/html/rfc8032). Offers deterministic signing, constant-time implementation, and efficient batch verification.
 
 ### Diffie-Hellman (DH) Key Exchange
+
+**IPsec IKEv2 Implementation:**
+```bash
+# StrongSwan IKEv2 configuration with strong DH groups
+conn secure-tunnel
+    keyexchange=ikev2
+    ike=aes256-sha256-modp4096!  # DH Group 16 (4096-bit)
+    esp=aes256-sha256-modp4096!
+    dpdaction=restart
+    auto=start
+```
 
 * **Protocol Foundation**: Enables secure establishment of shared secrets over insecure channels, relying on the difficulty of the discrete logarithm problem [Diffie & Hellman, 1976].
 * **Security Requirements**: Secure parameter selection (large prime p, generator g) and public key validation.
@@ -72,6 +203,45 @@ Cryptography provides the mathematical framework for securing information, ensur
 ### Hybrid Cryptosystems
 
 Most practical systems are **hybrid**, combining asymmetric cryptography for secure key exchange (e.g., TLS handshake) and symmetric cryptography for efficient bulk data encryption. **TLS (Transport Layer Security)** is a prime example; over **95% of web traffic** uses TLS [Cloudflare 2023 Internet Traffic Report](https://radar.cloudflare.com/).
+
+**Real-World Hybrid Implementation:**
+```python
+# Hybrid cryptosystem example: RSA + AES
+from cryptography.hazmat.primitives import hashes, serialization
+from cryptography.hazmat.primitives.asymmetric import rsa, padding
+from cryptography.hazmat.primitives.ciphers.aead import AESGCM
+import os
+
+# Generate RSA key pair
+private_key = rsa.generate_private_key(public_exponent=65537, key_size=2048)
+public_key = private_key.public_key()
+
+# Hybrid encryption
+def hybrid_encrypt(data, recipient_public_key):
+    # Generate random AES key
+    aes_key = os.urandom(32)  # 256-bit key
+    
+    # Encrypt data with AES-GCM
+    aesgcm = AESGCM(aes_key)
+    nonce = os.urandom(12)
+    encrypted_data = aesgcm.encrypt(nonce, data, None)
+    
+    # Encrypt AES key with RSA
+    encrypted_key = recipient_public_key.encrypt(
+        aes_key,
+        padding.OAEP(
+            mgf=padding.MGF1(algorithm=hashes.SHA256()),
+            algorithm=hashes.SHA256(),
+            label=None
+        )
+    )
+    
+    return {
+        'encrypted_key': encrypted_key,
+        'nonce': nonce,
+        'encrypted_data': encrypted_data
+    }
+```
 
 ## Hashing, MACs, and Digital Signatures
 
